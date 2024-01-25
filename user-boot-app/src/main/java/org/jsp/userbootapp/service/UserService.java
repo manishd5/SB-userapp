@@ -8,6 +8,7 @@ import org.jsp.userbootapp.dto.ResponseStructure;
 import org.jsp.userbootapp.dto.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,15 +16,15 @@ public class UserService {
 	@Autowired
 	private UserDao userDao;
 
-	public ResponseStructure<User> saveUser(User user) {
+	public ResponseEntity<ResponseStructure<User>> saveUser(User user) {
 		ResponseStructure<User> structure = new ResponseStructure<>();
 		structure.setData(userDao.saveUser(user));
 		structure.setMessage("User Saved");
 		structure.setStatusCode(HttpStatus.CREATED.value());
-		return structure;
+		return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.CREATED);
 	}
 
-	public ResponseStructure<User> updateUser(User user) {
+	public ResponseEntity<ResponseStructure<User>> updateUser(User user) {
 		ResponseStructure<User> structure = new ResponseStructure<>();
 		Optional<User> recUser = userDao.findById(user.getId());
 		if (recUser.isPresent()) {
@@ -35,38 +36,38 @@ public class UserService {
 			structure.setData(userDao.saveUser(dbUser));
 			structure.setMessage("User Updated");
 			structure.setStatusCode(HttpStatus.ACCEPTED.value());
-			return structure;
+			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.ACCEPTED);
 		}
 		structure.setData(null);
 		structure.setMessage("User not Found");
 		structure.setStatusCode(HttpStatus.NOT_FOUND.value());
-		return structure;
+		return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.NOT_FOUND);
 	}
 
-	public ResponseStructure<List<User>> findAll() {
+	public ResponseEntity<ResponseStructure<User>> findAll() {
 		ResponseStructure<List<User>> structure = new ResponseStructure<>();
 		structure.setData(userDao.findAll());
 		structure.setMessage("User List");
 		structure.setStatusCode(HttpStatus.OK.value());
-		return structure;
+		return new ResponseEntity<ResponseStructure<User>>(HttpStatus.OK);
 	}
 
-	public ResponseStructure<User> findById(int id) {
+	public ResponseEntity<ResponseStructure<User>> findById(int id) {
 		ResponseStructure<User> structure = new ResponseStructure<>();
 		Optional<User> dbuser = userDao.findById(id);
 		if (dbuser.isPresent()) {
 			structure.setData(dbuser.get());
 			structure.setMessage("User Found");
 			structure.setStatusCode(HttpStatus.OK.value());
-			return structure;
+			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.OK);
 		}
 		structure.setData(null);
 		structure.setMessage("User not Found");
 		structure.setStatusCode(HttpStatus.NOT_FOUND.value());
-		return structure;
+		return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.NOT_FOUND);
 	}
 
-	public ResponseStructure<Boolean> deleteById(int id) {
+	public ResponseEntity<ResponseStructure<Boolean>> deleteById(int id) {
 		ResponseStructure<Boolean> structure = new ResponseStructure<>();
 		Optional<User> dbuser = userDao.findById(id);
 		if (dbuser.isPresent()) {
@@ -74,22 +75,29 @@ public class UserService {
 			structure.setMessage("User Deleted");
 			structure.setStatusCode(HttpStatus.ACCEPTED.value());
 			userDao.deleteById(id);
-			return structure;
+			return new ResponseEntity<ResponseStructure<Boolean>>(structure, HttpStatus.ACCEPTED);
 		}
 
 		structure.setData(false);
 		structure.setMessage("Cannot delete User ID is invalid");
 		structure.setStatusCode(HttpStatus.NOT_FOUND.value());
-		return structure;
+		return new ResponseEntity<ResponseStructure<Boolean>>(structure, HttpStatus.NOT_FOUND);
 	}
 
-	public User verifyUser(long phone, String password) {
+	public ResponseEntity<ResponseStructure<User>>  verifyUser(long phone, String password) {
+		ResponseStructure<User> structure = new ResponseStructure<>();
 		Optional<User> recUser = userDao.verify(phone, password);
 		if (recUser.isPresent()) {
-			return recUser.get();
+			structure.setData(recUser.get());
+			structure.setMessage("User Found");
+			structure.setStatusCode(HttpStatus.OK.value());
+			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.OK);
 		}
 
-		return null;
+		structure.setData(null);
+		structure.setMessage("Invalid Phone Number");
+		structure.setStatusCode(HttpStatus.NOT_FOUND.value());
+		return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.NOT_FOUND);
 	}
 
 }
