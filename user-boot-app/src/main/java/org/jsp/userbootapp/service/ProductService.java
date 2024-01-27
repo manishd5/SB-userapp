@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jsp.userbootapp.dao.ProductDao;
+import org.jsp.userbootapp.dao.UserDao;
 import org.jsp.userbootapp.dto.Product;
 import org.jsp.userbootapp.dto.ResponseStructure;
+import org.jsp.userbootapp.dto.User;
+import org.jsp.userbootapp.exception.IdNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +18,23 @@ import org.springframework.stereotype.Service;
 public class ProductService {
 	@Autowired
 	private ProductDao productDao;
+	@Autowired
+	private UserDao userDao;
 
-	public ResponseEntity<ResponseStructure<Product>> saveProduct(Product product) {
+	public ResponseEntity<ResponseStructure<Product>> saveProduct(Product product,int user_id) {
+		Optional<User> recUser=userDao.findById(user_id);
+		if(recUser.isPresent()) {
+			User u =recUser.get();
+			u.getProducts().add(product);
+			userDao.saveUser(u);
+			product.setUser(u);
 		ResponseStructure<Product> structure = new ResponseStructure<>();
 		structure.setData(productDao.saveProduct(product));
 		structure.setMessage("Product Saved");
 		structure.setStatusCode(HttpStatus.CREATED.value());
 		return new ResponseEntity<ResponseStructure<Product>>(structure, HttpStatus.CREATED);
+		}
+		throw new IdNotFoundException();
 	}
 
 	public ResponseEntity<ResponseStructure<Product>> updateProduct(Product product) {

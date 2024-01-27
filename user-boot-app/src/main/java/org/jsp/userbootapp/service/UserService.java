@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.jsp.userbootapp.dao.UserDao;
 import org.jsp.userbootapp.dto.ResponseStructure;
 import org.jsp.userbootapp.dto.User;
+import org.jsp.userbootapp.exception.IdNotFoundException;
+import org.jsp.userbootapp.exception.InvalidCredentialsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,10 +63,7 @@ public class UserService {
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.OK);
 		}
-		structure.setData(null);
-		structure.setMessage("User not Found");
-		structure.setStatusCode(HttpStatus.NOT_FOUND.value());
-		return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.NOT_FOUND);
+		throw new IdNotFoundException();
 	}
 
 	public ResponseEntity<ResponseStructure<Boolean>> deleteById(int id) {
@@ -93,11 +92,8 @@ public class UserService {
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.OK);
 		}
+		throw new InvalidCredentialsException();
 
-		structure.setData(null);
-		structure.setMessage("Invalid Phone Number");
-		structure.setStatusCode(HttpStatus.NOT_FOUND.value());
-		return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.NOT_FOUND);
 	}
 
 }

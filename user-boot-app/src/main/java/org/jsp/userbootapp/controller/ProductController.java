@@ -22,9 +22,9 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 
-	@PostMapping("/products")
-	public ResponseEntity<ResponseStructure<Product>> saveProduct(@RequestBody Product product) {
-		return productService.saveProduct(product);
+	@PostMapping("/products/{user_id}")
+	public ResponseEntity<ResponseStructure<Product>> saveProduct(@RequestBody Product product,@PathVariable(name = "user_id") int user_id) {
+		return productService.saveProduct(product,user_id);
 	}
 
 	@PutMapping("/products")
